@@ -1,14 +1,15 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import api from "../../api/api";
 import "../../styles/auth.css";
 
 function Register() {
     const [registerData, setRegisterData] = useState({
-
-        name:"",
-        email:"",
-        password:""
-
+        firstName: "",
+        lastName: "",
+        email: "",
+        password: "",
+        role: "USER"
     });
 
     const handleChange = (e) => {
@@ -20,12 +21,36 @@ function Register() {
 
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        alert("Register button clicked!");
+        if (
+            registerData.firstName === "" ||
+            registerData.lastName === "" ||
+            registerData.email === "" ||
+            registerData.password === ""
+        ) {
+            alert("Please fill all fields");
+            return;
+        }
+        try {
+            console.log(registerData);
+            const response = await api.post("/api/users", registerData);
 
-        console.log(registerData);
+            alert("Registration Successful!");
+
+            console.log(response.data);
+
+        } catch (error) {
+            console.log("Status:", error.response?.status);
+            console.log("Response:", error.response?.data);
+            console.log("Sending:", registerData);
+
+            alert("Registration Failed!");
+
+            console.log(error);
+
+        }
     };
 
     return (
@@ -44,16 +69,27 @@ function Register() {
                 <form  onSubmit={handleSubmit}>
 
                     <div className="mb-3">
-                        <label>Name</label>
+                        <label>First Name</label>
                         <input
                             type="text"
-                            name="name"
-                            value={registerData.name}
+                            name="firstName"
+                            value={registerData.firstName}
                             onChange={handleChange}
                             className="form-control"
-                            placeholder="Enter your name"
+                            placeholder="Enter first name"
                         />
 
+                    </div>
+                    <div className="mb-3">
+                        <label>Last Name</label>
+                        <input
+                            type="text"
+                            name="lastName"
+                            value={registerData.lastName}
+                            onChange={handleChange}
+                            className="form-control"
+                            placeholder="Enter last name"
+                        />
                     </div>
 
                     <div className="mb-3">
