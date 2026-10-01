@@ -1,29 +1,41 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import api from "../../api/api";
 import "../../styles/auth.css";
 function Login(){
+    const navigate = useNavigate();
     const [loginData, setLoginData] = useState({
         email: "",
         password: ""
     });
-
+    const [error,setError] = useState("");
     const handleChange = (e) => {
 
         setLoginData({
             ...loginData,
             [e.target.name]: e.target.value
         });
-
+        setError("");
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit =async (e) => {
 
         e.preventDefault();
+        try {
+            console.log("Sending login data:", loginData);
+            const response = await api.post("/api/auth/login", loginData);
 
-        console.log(loginData);
+            console.log(response.data);
+            localStorage.setItem("token" , response.data.token);
+            alert("Login Successful!");
+            navigate("/dashboard");
+        } catch (error) {
 
-    };
-    return(
+            console.log("Status:", error.response?.status);
+            console.log("Response:", error.response?.data);
+           setError("Invalid email or password. Please try again.");
+    }};
+  return(
         <div className="auth-container">
 
                <div className="auth-card">
@@ -35,6 +47,11 @@ function Login(){
                    </p>
 
                    <form onSubmit={handleSubmit}>
+                       {error && (
+                           <div className="alert alert-danger">
+                           {error}
+                           </div>
+                       )}
                        <div className="mb-3">
                            <label>
                                Email
@@ -65,7 +82,7 @@ function Login(){
 
                </div>
 
-               <button className="btn btn-primary w-100">
+               <button type= "submit" className="btn btn-success w-100">
                    Login
                </button>
                    </form>
